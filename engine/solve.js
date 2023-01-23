@@ -280,7 +280,7 @@ window.drawPath = function(puzzle, path, target='puzzle') {
 
   var start = document.getElementById('start_' + target + '_' + x + '_' + y)
   var symStart = document.getElementById('symStart_' + target + '_' + x + '_' + y)
-  window.onTraceStart(puzzle, {'x':x, 'y':y}, document.getElementById(target), start, symStart)
+  window.initLineDrawing(puzzle, {'x':x, 'y':y}, document.getElementById(target), start, symStart)
 
   console.log('Drawing solution of length', path.length)
   for (var i=1; i<path.length; i++) {

@@ -1,6 +1,7 @@
 namespace(function() {
 
 let audioPlaying = false;
+var onkeydown;
 
 window.draw = function(puzzle, target='puzzle') {
   if (puzzle == null) return
@@ -43,6 +44,7 @@ window.draw = function(puzzle, target='puzzle') {
   drawStartAndEnd(puzzle, svg)
   // Draw cell symbols after so they overlap the lines, if necessary
   drawSymbols(puzzle, svg, target)
+  addPuzzleStartListener(puzzle, svg)
 
   if (puzzle.moongate) {
     let defs = window.createElement('defs')
@@ -458,13 +460,26 @@ function drawStartAndEnd(puzzle, svg) {
         // This syntax is used to forcibly copy all of the arguments
         ;(function(puzzle, x, y, start, symStart) {
           start.onpointerdown = function(event) {
-            window.trace(event, puzzle, {'x':x, 'y':y}, start, symStart)
+            window.onTraceClick(event, puzzle, {'x':x, 'y':y}, start, symStart)
             event.stopPropagation();
           }
         }(puzzle, x, y, start, symStart))
       }
     }
   }
+}
+
+function addPuzzleStartListener(puzzle, svg) {
+  if (onkeydown)
+    document.removeEventListener("keydown", onkeydown)
+  onkeydown = function(event) {
+
+    if ([" ", "Enter", "5"].includes(event.key)) {
+      event.preventDefault()
+      window.cycleStartPoint(0, puzzle, svg)
+    }
+  }
+  document.addEventListener("keydown", onkeydown, {"passive":false})
 }
 
 })

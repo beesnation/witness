@@ -258,22 +258,14 @@ namespace(function () {
   function keyNav(event) {
     event = event || window.event;
 
-    // Left keypress, move to previous panel
-    if (event.keyCode == '37') {
+    if (["ArrowLeft", "a", "h", "4"].includes(event.key))
       getPrev();
-    }
-    // Right keypress, move to next panel A
-    else if (event.keyCode == '39') {
+    else if (["ArrowRight", "d", "l", "6"].includes(event.key))
       getNext(0);
-    }
-    // Down keypress, move to next panel B
-    else if (event.keyCode == '40') {
+    else if (["ArrowDown", "s", "j", "2"].includes(event.key))
       getNext(1);
-    }
-    // Up keypress, move to next panel C
-    else if (event.keyCode == '38') {
+    else if (["ArrowUp", "w", "k", "8"].includes(event.key))
       getNext(2);
-    }
   }
 
   function HSVtoRGB(h, s, v) {

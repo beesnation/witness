@@ -1,6 +1,7 @@
 namespace(function() {
 
-var BBOX_DEBUG = false
+let BBOX_DEBUG = false
+let unhookController = new AbortController()
 
 function clamp(value, min, max) {
   return value < min ? min : value > max ? max : value
@@ -382,109 +383,21 @@ function getSoundPrefix(puzzle) {
   return prefix;
 }
 
-window.trace = function(event, puzzle, pos, start, symStart=null) {
+window.onTraceClick = function(event, puzzle, pos, start, symStart=null) {
   /*if (data.start == null) {*/
   if (data.tracing !== true) { // could be undefined or false
-    var svg = start.parentElement
-    data.tracing = true
-    window.PLAY_SOUND('start' + getSoundPrefix(puzzle));
-    // Cleans drawn lines & puzzle state
-    clearGrid(svg, puzzle)
-    onTraceStart(puzzle, pos, svg, start, symStart)
-    data.animations.insertRule('.' + svg.id + '.start {animation: 150ms 1 forwards start-grow}\n')
-
-    hookMovementEvents(start)
+    startTrace(puzzle, pos, start, symStart)
   } else {
     event.stopPropagation()
-    // Signal the onMouseMove to stop accepting input (race condition)
-    data.tracing = false
 
-    // At endpoint and in main box
     var cell = puzzle.getCell(data.pos.x, data.pos.y)
-    if (cell.end != null && data.bbox.inMain(data.x, data.y)) {
-      data.cursor.onpointerdown = null
-      setTimeout(function() { // Run validation asynchronously so we can free the pointer immediately.
-        puzzle.endPoint = data.pos
-        puzzle.path = [puzzle.startPoint];
-        for (var i=1; i<data.path.length; i++) puzzle.path.push(data.path[i].dir)
-        puzzle.path.push(0)
-        window.validate(puzzle, false) // We want all invalid elements so we can show the user.
-
-        if (puzzle.valid) {
-          window.PLAY_SOUND('success' + getSoundPrefix(puzzle));
-          let type = puzzle.getCell(puzzle.endPoint.x, puzzle.endPoint.y).endType;
-          if (type === 1) window.PLAY_SOUND('endB')
-          else if (type === 2) window.PLAY_SOUND('endC')
-          if (isMultiplePanels() && isLastPanel(type)) window.PLAY_SOUND('beam')
-          window.onSolvedPuzzle(data.path)
-          // !important to override the child animation
-          data.animations.insertRule('.' + data.svg.id + ' {animation: 1s 1 forwards line-success !important}\n')
-          if (window.TRACE_COMPLETION_FUNC) window.TRACE_COMPLETION_FUNC(puzzle, puzzle.path)
-        } else {
-          window.PLAY_SOUND('fail' + getSoundPrefix(puzzle));
-          document.getElementsByClassName('cursor')[0].style.opacity = 0;
-          if (puzzle.image['cursor-image']) document.getElementsByClassName('cursor-image')[0].style.opacity = 0;
-          for (let o of Array.from(document.getElementsByClassName('veil-image'))) o.style.opacity = 1;
-          data.animations.insertRule('.' + data.svg.id + ' {animation: 1s 1 forwards line-fail !important}\n')
-          // Get list of invalid elements
-          if (!puzzle.disableFlash) {
-            for (var invalidElement of puzzle.invalidElements) {
-              if (!puzzle.getCell(invalidElement.x, invalidElement.y).gap) {
-                data.animations.insertRule('.' + data.svg.id + '_' + invalidElement.x + '_' + invalidElement.y + ' {animation: 0.4s 20 alternate-reverse error}\n')
-                data.animations.insertRule('.' + data.svg.id + '_' + invalidElement.x + '_' + invalidElement.y + '_copier {animation: 0.4s 20 alternate-reverse error}\n')
-              }
-            }
-            if (puzzle.failmandering) data.animations.insertRule('#jerrymandering {animation: 0.2s 10 alternate-reverse error}\n')
-          }
-        }
-        if (puzzle.statuscoloring) {
-          if (puzzle.statusRight?.length) for (var e of puzzle.statusRight) {
-            data.animations.insertRule('.' + data.svg.id + '_' + e.x + '_' + e.y + ' {fill: #99ff99}\n')
-            data.animations.insertRule('.' + data.svg.id + '_' + e.x + '_' + e.y + '_copier {fill: #99ff99}\n')
-          }
-          if (puzzle.statusWrong?.length) for (var e of puzzle.statusWrong) {
-            data.animations.insertRule('.' + data.svg.id + '_' + e.x + '_' + e.y + ' {fill: #ff9999}\n')
-            data.animations.insertRule('.' + data.svg.id + '_' + e.x + '_' + e.y + '_copier {fill: #ff9999}\n')
-          }
-        }
-        if (Object.keys(puzzle.negatorResults).length || Object.keys(puzzle.copierResults).length) window.PLAY_SOUND('negator');
-        for (let r of [...Object.keys(puzzle.negatorResults), ...Object.values(puzzle.negatorResults)]) {
-          r = Number(r);
-          let [x, y] = [r % puzzle.width, div(r, puzzle.width)];
-          data.animations.insertRule('.' + data.svg.id + '_' + x + '_' + y + (puzzle.getCell(x, y).type === 'copier' ? '_copier' : '') + ' {opacity: 0.25}\n')
-        }
-        for (let r in puzzle.copierResults) {
-          r = Number(r);
-          let x = r % puzzle.width;
-          let y = div(r, puzzle.width);
-          let q = {
-            'width':58,
-            'height':58,
-            'x': x*41 + 23,
-            'y': y*41 + 23,
-            'class': 'puzzle_' + x + '_' + y + '_copier'
-          };
-          Object.assign(q, puzzle.getCell(puzzle.copierResults[r] % puzzle.width, div(puzzle.copierResults[r], puzzle.width)));
-          q.color = puzzle.getCell(x, y).color;
-          data.animations.insertRule('.' + data.svg.id + '_' + x + '_' + y + ' {opacity: 0}\n')
-          window.drawSymbolWithSvg(data.svg, q);
-          for (let el of Array.from(document.getElementsByClassName(data.svg.id + '_' + x + '_' + y + '_copier'))) el.classList.add('copierResult');
-        }
-      }, 1)
-
-    // Right-clicked (or double-tapped) and not at the end: Clear puzzle
-    } else if (event.isRightClick()) {
-      window.PLAY_SOUND('abort' + getSoundPrefix(puzzle));
-      clearGrid(data.svg, puzzle)
-    } else { // Exit lock but allow resuming from the cursor (Desktop only)
-      data.cursor.onpointerdown = function(event) {
-        if (start.parentElement !== data.svg) return // Another puzzle is live, so data is gone
-        data.tracing = true
-        hookMovementEvents(start)
-      }
+    if (cell.end != null && data.bbox.inMain(data.x, data.y)) // At endpoint and in main box
+      endTrace()
+    else if (event.isRightClick()) {
+      abortTrace()
     }
-
-    unhookMovementEvents()
+    else
+      pauseTrace(start)
   }
 }
 
@@ -499,7 +412,20 @@ window.clearAnimations = function() {
   for (let el of Array.from(document.getElementsByClassName('copierResult'))) el.parentElement.removeChild(el);
 }
 
-window.onTraceStart = function(puzzle, pos, svg, start, symStart=null) {
+window.startTrace = function(puzzle, pos, start, symStart=null) {
+  window.PLAY_SOUND('start' + getSoundPrefix(puzzle));
+  var svg = start.parentElement
+  data.tracing = true
+  // Cleans drawn lines & puzzle state
+  clearGrid(svg, puzzle)
+
+  initLineDrawing(puzzle, pos, svg, start, symStart)
+
+  data.animations.insertRule('.' + svg.id + '.start {animation: 150ms 1 forwards start-grow}\n')
+  hookMovementEvents(start)
+}
+
+window.initLineDrawing = function(puzzle, pos, svg, start, symStart=null) {
   var x = parseFloat(start.getAttribute('cx'))
   var y = parseFloat(start.getAttribute('cy'))
 
@@ -575,11 +501,11 @@ window.onTraceStart = function(puzzle, pos, svg, start, symStart=null) {
     var dx = parseFloat(symStart.getAttribute('cx')) - data.x
     var dy = parseFloat(symStart.getAttribute('cy')) - data.y
     data.symbbox = new BoundingBox(
-      data.bbox.raw.x1 + dx,
-      data.bbox.raw.x2 + dx,
-      data.bbox.raw.y1 + dy,
-      data.bbox.raw.y2 + dy,
-      sym = true)
+        data.bbox.raw.x1 + dx,
+        data.bbox.raw.x2 + dx,
+        data.bbox.raw.y1 + dy,
+        data.bbox.raw.y2 + dy,
+        sym = true)
 
     data.symcursor = createElement('circle')
     svg.insertBefore(data.symcursor, data.cursor)
@@ -591,18 +517,113 @@ window.onTraceStart = function(puzzle, pos, svg, start, symStart=null) {
   data.path.push(new PathSegment(MOVE_NONE)) // Must be created after initializing data.symbbox
 }
 
+window.endTrace = function() {
+    window.pushIntoEnd()
+    data.cursor.onpointerdown = null
+    data.tracing = false // signal onMouseMove to stop accepting input (race condition)
+    setTimeout(function() { // Run validation asynchronously so we can free the pointer immediately.
+      puzzle.endPoint = data.pos
+      puzzle.path = [puzzle.startPoint];
+      for (var i=1; i<data.path.length; i++) puzzle.path.push(data.path[i].dir)
+      puzzle.path.push(0)
+      window.validate(puzzle, false) // We want all invalid elements so we can show the user.
+
+      if (puzzle.valid) {
+        window.PLAY_SOUND('success' + getSoundPrefix(puzzle));
+        let type = puzzle.getCell(puzzle.endPoint.x, puzzle.endPoint.y).endType;
+        if (type === 1) window.PLAY_SOUND('endB')
+        else if (type === 2) window.PLAY_SOUND('endC')
+        if (isMultiplePanels() && isLastPanel(type)) window.PLAY_SOUND('beam')
+        window.onSolvedPuzzle(data.path)
+        // !important to override the child animation
+        data.animations.insertRule('.' + data.svg.id + ' {animation: 1s 1 forwards line-success !important}\n')
+        if (window.TRACE_COMPLETION_FUNC) window.TRACE_COMPLETION_FUNC(puzzle, puzzle.path)
+      } else {
+        window.PLAY_SOUND('fail' + getSoundPrefix(puzzle));
+        document.getElementsByClassName('cursor')[0].style.opacity = 0;
+        if (puzzle.image['cursor-image']) document.getElementsByClassName('cursor-image')[0].style.opacity = 0;
+        for (let o of Array.from(document.getElementsByClassName('veil-image'))) o.style.opacity = 1;
+        data.animations.insertRule('.' + data.svg.id + ' {animation: 1s 1 forwards line-fail !important}\n')
+        // Get list of invalid elements
+        if (!puzzle.disableFlash) {
+          for (var invalidElement of puzzle.invalidElements) {
+            if (!puzzle.getCell(invalidElement.x, invalidElement.y).gap) {
+              data.animations.insertRule('.' + data.svg.id + '_' + invalidElement.x + '_' + invalidElement.y + ' {animation: 0.4s 20 alternate-reverse error}\n')
+              data.animations.insertRule('.' + data.svg.id + '_' + invalidElement.x + '_' + invalidElement.y + '_copier {animation: 0.4s 20 alternate-reverse error}\n')
+            }
+          }
+          if (puzzle.failmandering) data.animations.insertRule('#jerrymandering {animation: 0.2s 10 alternate-reverse error}\n')
+        }
+      }
+      if (puzzle.statuscoloring) {
+        if (puzzle.statusRight?.length) for (var e of puzzle.statusRight) {
+          data.animations.insertRule('.' + data.svg.id + '_' + e.x + '_' + e.y + ' {fill: #99ff99}\n')
+          data.animations.insertRule('.' + data.svg.id + '_' + e.x + '_' + e.y + '_copier {fill: #99ff99}\n')
+        }
+        if (puzzle.statusWrong?.length) for (var e of puzzle.statusWrong) {
+          data.animations.insertRule('.' + data.svg.id + '_' + e.x + '_' + e.y + ' {fill: #ff9999}\n')
+          data.animations.insertRule('.' + data.svg.id + '_' + e.x + '_' + e.y + '_copier {fill: #ff9999}\n')
+        }
+      }
+      if (Object.keys(puzzle.negatorResults).length || Object.keys(puzzle.copierResults).length) window.PLAY_SOUND('negator');
+      for (let r of [...Object.keys(puzzle.negatorResults), ...Object.values(puzzle.negatorResults)]) {
+        r = Number(r);
+        let [x, y] = [r % puzzle.width, div(r, puzzle.width)];
+        data.animations.insertRule('.' + data.svg.id + '_' + x + '_' + y + (puzzle.getCell(x, y).type === 'copier' ? '_copier' : '') + ' {opacity: 0.25}\n')
+      }
+      for (let r in puzzle.copierResults) {
+        r = Number(r);
+        let x = r % puzzle.width;
+        let y = div(r, puzzle.width);
+        let q = {
+          'width':58,
+          'height':58,
+          'x': x*41 + 23,
+          'y': y*41 + 23,
+          'class': 'puzzle_' + x + '_' + y + '_copier'
+        };
+        Object.assign(q, puzzle.getCell(puzzle.copierResults[r] % puzzle.width, div(puzzle.copierResults[r], puzzle.width)));
+        q.color = puzzle.getCell(x, y).color;
+        data.animations.insertRule('.' + data.svg.id + '_' + x + '_' + y + ' {opacity: 0}\n')
+        window.drawSymbolWithSvg(data.svg, q);
+        for (let el of Array.from(document.getElementsByClassName(data.svg.id + '_' + x + '_' + y + '_copier'))) el.classList.add('copierResult');
+      }
+    }, 1)
+  unhookMovementEvents()
+}
+
+window.abortTrace = function() {
+    data.tracing = false // signal onMouseMove to stop accepting input (race condition)
+    window.PLAY_SOUND('abort' + getSoundPrefix(puzzle));
+    clearGrid(data.svg, puzzle)
+    unhookMovementEvents()
+}
+
+window.pauseTrace = function(start) {
+  data.tracing = false;
+
+  // allow resuming
+  data.cursor.onpointerdown = function(event) {
+    if (start.parentElement !== data.svg) return // Another puzzle is live, so data is gone
+    data.tracing = true
+    hookMovementEvents(start)
+  }
+
+  unhookMovementEvents()
+}
+
 // In case the user exit the pointer lock via another means (clicking outside the window, hitting esc, etc)
-// we still need to disengage our tracing hooks.
+// we still need to disengage our tracing hooks. But we can allow the user to resume.
 document.onpointerlockchange = function() {
-  if (document.pointerLockElement == null) unhookMovementEvents()
+  if (document.pointerLockElement == null) {
+    if (data.tracing && data.start) pauseTrace(data.start)
+    else unhookMovementEvents()
+  }
 }
 
 function unhookMovementEvents() {
   data.start = null
-  document.onmousemove = null
-  document.ontouchstart = null
-  document.ontouchmove = null
-  document.ontouchend = null
+  unhookController.abort()
   if (document.exitPointerLock != null) document.exitPointerLock()
   if (document.mozExitPointerLock != null) document.mozExitPointerLock()
 }
@@ -612,18 +633,23 @@ function hookMovementEvents(start) {
   if (start.requestPointerLock != null) start.requestPointerLock()
   if (start.mozRequestPointerLock != null) start.mozRequestPointerLock()
 
+  unhookController.abort()
+  unhookController = new AbortController()
+
   var sens = parseFloat(localStorage.sensitivity)
-  document.onmousemove = function(event) {
+  function onMouseMove(event) {
     // Working around a race condition where movement events fire after the handler is removed.
     if (data.tracing !== true) return
     // Prevent accidental fires on mobile platforms (ios and android). They will be handled via ontouchmove instead.
     if (event.movementX == null) return
     onMove(sens * event.movementX, sens * event.movementY)
   }
-  document.ontouchstart = function(event) {
+  document.addEventListener("mousemove", onMouseMove, {"passive":true, "signal":unhookController.signal})
+
+  function onTouchStart(event) {
     if (event.touches.length > 1) {
       // Stop tracing for two+ finger touches (the equivalent of a right click on desktop)
-      window.trace(event, data.puzzle, null, null, null)
+      window.abortTrace()
       return
     }
     data.lastTouchPos = {
@@ -631,7 +657,9 @@ function hookMovementEvents(start) {
       'y': event.pageY || event.touches[0].pageY,
     }
   }
-  document.ontouchmove = function(event) {
+  document.addEventListener("touchstart", onTouchStart, {"passive":true, "signal":unhookController.signal})
+
+  function onTouchMove(event) {
     if (data.tracing !== true) return
 
     var eventIsWithinPuzzle = false
@@ -642,7 +670,6 @@ function hookMovementEvents(start) {
       }
     }
     if (!eventIsWithinPuzzle) return // Ignore drag events that aren't within the puzzle
-    // event.preventDefault() // Prevent accidental scrolling if the touch event is within the puzzle.
 
     var newPos = {
       'x': event.pageX || event.touches[0].pageX,
@@ -650,15 +677,95 @@ function hookMovementEvents(start) {
     }
     onMove(newPos.x - data.lastTouchPos.x, newPos.y - data.lastTouchPos.y)
     data.lastTouchPos = newPos
+    event.preventDefault() // Prevent accidental scrolling. Event needs "passive:false" explicitly to work on most browsers
   }
-  document.ontouchend = function(event) {
+  document.addEventListener("touchmove", onTouchMove, {"passive":false, "signal":unhookController.signal})
+
+  function onTouchEnd(event) {
     data.lastTouchPos = null
-    // Only call window.trace (to stop tracing) if we're really in an endpoint.
+    // Only stop tracing if we're really in an endpoint.
     var cell = data.puzzle.getCell(data.pos.x, data.pos.y)
     if (cell.end != null && data.bbox.inMain(data.x, data.y)) {
-      window.trace(event, data.puzzle, null, null, null)
+      window.endTrace()
     }
   }
+  document.addEventListener("touchend", onTouchEnd, {"passive":true, signal:unhookController.signal})
+
+  function onKeyDown(event) {
+    if (data.tracing !== true) return
+
+    if (["ArrowLeft", "a", "h", "4"].includes(event.key)) {
+      // Left keypress
+      event.preventDefault()
+      event.stopPropagation()
+      pushOneCell(MOVE_LEFT)
+    } else if (["ArrowRight", "d", "l", "6"].includes(event.key)) {
+      // Right keypress
+      event.preventDefault()
+      event.stopPropagation()
+      pushOneCell(MOVE_RIGHT)
+    } else if (["ArrowDown", "s", "j", "2"].includes(event.key)) {
+      // Down keypress
+      event.preventDefault()
+      event.stopPropagation()
+      pushOneCell(MOVE_BOTTOM)
+    } else if (["ArrowUp", "w", "k", "8"].includes(event.key)) {
+      // Up keypress
+      event.preventDefault()
+      event.stopPropagation()
+      pushOneCell(MOVE_TOP)
+    } else if ([" ", "Enter", "5"].includes(event.key)) {
+      // stop tracing
+      event.preventDefault()
+      event.stopPropagation()
+      var cell = puzzle.getCell(data.pos.x, data.pos.y)
+      if (cell.end != null)
+        endTrace() // at endpoint (not necessarily *in*)
+      else
+        abortTrace() // not at the end - clear puzzle
+    } else if (event.key === "Tab") {
+      event.preventDefault()
+      if (event.shiftKey) cycleStartPoint(-1)
+      else cycleStartPoint(1)
+    }
+  }
+  // "capture" makes it take priority over the panel navigation
+  document.addEventListener("keydown", onKeyDown, {"passive":false, signal:unhookController.signal, "capture":true})
+}
+
+window.cycleStartPoint = function(dir, puzzle=data.puzzle, svg=data.svg) {
+  // for keyboard controls
+  // dir usually = 1 or -1 or 0, for whether we want to go to the next, prev or same start
+
+  let starts = []
+  for (var x=0; x<puzzle.width; x++)
+  {
+    for (var y = 0; y < puzzle.height; y++) {
+      var cell = puzzle.grid[x][y]
+      if (cell == null) continue;
+      if (!cell.start) continue;
+      starts.push({"x":x, "y":y})
+    }
+  }
+  if (starts.length === 0) return
+
+  let i = 0
+  if (data.start) {
+    i = starts.findIndex(p => data.start.id === "start_puzzle_" + p.x + "_" + p.y)
+    if (i < 0)
+      i = 0
+    else {
+      i += dir
+      i = ((i % starts.length) + starts.length) % starts.length // this is the actual mod, where -1 mod 10 = 9
+
+    }
+  }
+
+  let pos = starts[i]
+  let start = document.getElementById('start_' + svg.id + '_' + pos.x + '_' + pos.y)
+  if (!start) console.warn("Could not find a start element for", pos.x, pos.y)
+  let symStart = document.getElementById('symStart_' + svg.id + '_' + pos.x + '_' + pos.y)
+  startTrace(puzzle, pos, start, symStart)
 }
 
 // @Volatile -- must match order of PATH_* in solve
@@ -667,6 +774,44 @@ var MOVE_LEFT   = 1
 var MOVE_RIGHT  = 2
 var MOVE_TOP    = 3
 var MOVE_BOTTOM = 4
+
+window.pushOneCell = function(dir, first = true) {
+  // performs keyboard movement, takes one of {MOVE_LEFT ... MOVE_BOTTOM}
+
+  // push to middle of cell
+  onMove(data.bbox.middle.x - data.x, 0)
+  onMove(0, data.bbox.middle.y - data.y)
+
+  // push into next cell
+  if (dir === MOVE_LEFT)
+    onMove(data.bbox.x1 - data.x - 1, 0)
+  else if (dir === MOVE_RIGHT)
+    onMove(data.bbox.x2 - data.x + 1, 0)
+  else if (dir === MOVE_TOP)
+    onMove(0, data.bbox.y1 - data.y - 1)
+  else if (dir === MOVE_BOTTOM)
+    onMove(0, data.bbox.y2 - data.y + 1)
+
+  // push to middle of cell again
+  onMove(data.bbox.middle.x - data.x, 0)
+  onMove(0, data.bbox.middle.y - data.y)
+
+  // repeat once if we're not at an intersection
+  let cell = data.puzzle.getCell(data.pos.x, data.pos.y)
+  let at_intersection = (data.pos.x % 2 === 0 && data.pos.y % 2 === 0) || cell.end
+  if (!at_intersection && first)
+    pushOneCell(dir, false)
+}
+
+window.pushIntoEnd = function() {
+  // Makes the path fully enter the endpoint.
+  // Ideal for keyboard, but it runs for mouse solutions too
+  let cell = data.puzzle.getCell(data.pos.x, data.pos.y)
+  if (cell.end === "left") onMove(-24, 0)
+  else if (cell.end === "right") onMove(24, 0)
+  else if (cell.end === "top") onMove(0, -24)
+  else if (cell.end === "bottom") onMove(0, 24)
+}
 
 window.onMove = function(dx, dy) {
   {
