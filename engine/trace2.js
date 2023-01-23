@@ -738,9 +738,8 @@ window.cycleStartPoint = function(dir, puzzle=data.puzzle, svg=data.svg) {
   // dir usually = 1 or -1 or 0, for whether we want to go to the next, prev or same start
 
   let starts = []
-  for (var x=0; x<puzzle.width; x++)
-  {
-    for (var y = 0; y < puzzle.height; y++) {
+  for (var y = puzzle.height-1; y >= 0; y--) {
+    for (var x=0; x<puzzle.width; x++) {
       var cell = puzzle.grid[x][y]
       if (cell == null) continue;
       if (!cell.start) continue;
