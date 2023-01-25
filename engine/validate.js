@@ -35,7 +35,7 @@ class Polyomino {
     }
 }
 
-const NEGATE_IMMEDIATELY = ['dot', 'cross', 'curve', 'dots', 'triangle', 'atriangle', 'arrow', 'dart', 'twobytwo', 'crystal', 'dice', 'eye', 'drop']; // these work individually, and can be negated
+const NEGATE_IMMEDIATELY = ['dot', 'cross', 'curve', 'dots', 'triangle', 'atriangle', 'arrow', 'dart', 'twobytwo', 'crystal', 'dice', 'eye', 'drop', 'fulcrum']; // these work individually, and can be negated
 const CHECK_ALSO = { // removing this 1 thing can affect these other symbols
     'square': ['pentagon'],
     'pentagon': ['square'],
@@ -1788,6 +1788,54 @@ const validate = [
                     global.regionData[regionNum].push(c);
                     if (!puzzle.valid && quick) return;
                 }
+            }
+        }
+    }, {
+        '_name': 'FULCRUM CHECK',
+        'or': ['fulcrum'],
+        'exec': function(puzzle, regionNum, global, quick) {
+            // no portal support, not sure if there even is any possible portal interaction that makes physical sense
+            // also how tf should it work with pillars?
+            let h_fulcra = []
+            let v_fulcra = []
+            let xmin = 2**16
+            let xmax = -(2**16)
+            let ymin =  2**16
+            let ymax = -(2**16)
+            let xmoment = 0
+            let ymoment = 0
+            let w = puzzle.width
+            let n = global.regions.cell[regionNum].length // region mass
+
+            for (const c of global.regionCells.cell[regionNum]) {
+                let [x, y] = xy(c, w);
+                let cell = cel(puzzle, c, w);
+                if (!cell.flip) {
+                    h_fulcra.push(c)
+                    xmin = Math.min(xmin, x)
+                    xmax = Math.max(xmin, x)
+                } else {
+                    v_fulcra.push(c)
+                    ymin = Math.min(ymin, y)
+                    ymax = Math.max(ymax, y)
+                }
+            }
+
+            for (const c of global.regions.cell[regionNum]) {
+                let [x, y] = xy(c, w);
+                xmoment += x
+                ymoment += y
+            }
+
+            // avoid potential floating point issues by checking m < x*n instead of m/n < x
+            if (h_fulcra.length && (xmoment < xmin*n || xmoment > xmax*n)) {
+                console.info('[!] h-fulcrum fault in region', regionNum + ':', xmoment/n, 'not in', [xmin, xmax]);
+                global.regionData[regionNum] = global.regionData[regionNum].concat(h_fulcra)
+                if (quick) return
+            }
+            if (v_fulcra.length && (ymoment < ymin*n || ymoment > ymax*n)) {
+                console.info('[!] v-fulcrum fault in region', regionNum + ':', ymoment/n, 'not in', [ymin, ymax]);
+                global.regionData[regionNum] = global.regionData[regionNum].concat(v_fulcra)
             }
         }
     }

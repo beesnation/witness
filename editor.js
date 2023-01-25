@@ -526,6 +526,7 @@ namespace(function () {
     'drop': { 'type': 'drop', 'count': 1, 'title': 'Mail\'s Drop' },
     'null': { 'type': 'null', 'title': 'Null Symbol' },
     'bridgeButActually': { 'type': 'bridgeButActually', 'flip': false, 'title': 'Kube\'s Bridges' },
+    'fulcrum': { 'type': 'fulcrum', 'flip': false, 'title': 'Bees\' Fulcra'},
     'none': { 'type': 'none', 'title': 'Symbol Coming Soon!' }
   }
   let xButtons = [];
@@ -635,6 +636,7 @@ namespace(function () {
           break;
         case 'scaler':
         case 'bell':
+        case 'fulcrum':
         case 'swirl':
           button.onpointerdown = function (event) {
             buttonBehaviour(event, this, (el) => {
@@ -1016,7 +1018,7 @@ namespace(function () {
           'color': activeParams.color,
         }
       }
-    } else if (['scaler', 'swirl'].includes(activeParams.type)) {
+    } else if (['scaler', 'swirl', 'fulcrum'].includes(activeParams.type)) {
       if (x % 2 !== 1 || y % 2 !== 1) return
       if (puzzle.grid[x][y] != null
         && puzzle.grid[x][y].type === activeParams.type

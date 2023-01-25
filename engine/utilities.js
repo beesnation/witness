@@ -100,7 +100,7 @@ namespace(function () {
   window.CUSTOM_BRIDGE = 4
   window.CUSTOM_BRIDGE_FLIPPED = 5
 
-  window.symbols = ['square', 'star', 'pentagon', 'triangle', 'arrow', 'dart', 'atriangle', 'vtriangle', 'blackhole', 'whitehole', 'divdiamond', 'pokerchip', 'bridge', 'scaler', 'sizer', 'twobytwo', 'poly', 'ylop', 'polynt', 'nega', 'copier', 'portal', 'celledhex', 'dice', 'xvmino', 'crystal', '!poly', '!ylop', '!polynt', '!xvmino', 'swirl', 'eye', 'bell', 'drop', 'null'];
+  window.symbols = ['square', 'star', 'pentagon', 'triangle', 'arrow', 'dart', 'atriangle', 'vtriangle', 'blackhole', 'whitehole', 'divdiamond', 'pokerchip', 'bridge', 'scaler', 'sizer', 'twobytwo', 'poly', 'ylop', 'polynt', 'nega', 'copier', 'portal', 'celledhex', 'dice', 'xvmino', 'crystal', '!poly', '!ylop', '!polynt', '!xvmino', 'swirl', 'eye', 'bell', 'drop', 'fulcrum', 'null'];
   window.polyominoes = ['poly', 'ylop', 'polynt', 'xvmino'];
   window.endEnum = ['top', 'right', 'left', 'bottom'];
   window.themeArgs = ['background', 'outer', 'inner', 'text', 'line-undone', 'line-default', 'line-success', 'line-primary', 'line-secondary'];
@@ -764,7 +764,7 @@ namespace(function () {
     if (['triangle', 'arrow', 'dart', 'atriangle', 'divdiamond', 'dice', 'crystal', 'eye', 'bell', 'drop'].includes(cell.type)) count += cell.count;
     if (['arrow', 'dart'].includes(cell.type)) count = count * 8 + cell.rot;
     //   if (['bell'].includes(cell.type)) count += cell.flip << 2;
-    if (['scaler', 'swirl'].includes(cell.type)) raw += String.fromCharCode(!!cell.flip);
+    if (['scaler', 'swirl', 'fulcrum'].includes(cell.type)) raw += String.fromCharCode(!!cell.flip);
     if (count) raw += String.fromCharCode(count);
     if (polyominoes.includes(cell.type)) raw += intToShort(cell.polyshape);
     return raw;
@@ -1037,6 +1037,7 @@ namespace(function () {
     switch (ret.type) {
       case 'scaler':
       case 'swirl':
+      case 'fulcrum':
         ret.flip = !!data1;
         return [ret, 1];
       case 'arrow':
@@ -1162,6 +1163,7 @@ namespace(function () {
           break;
         case 'scaler':
         case 'swirl':
+        case 'fulcrum':
           cell.flip = !!char;
           break;
         case 'poly':
