@@ -1810,6 +1810,7 @@ const validate = [
             for (const c of global.regionCells.cell[regionNum]) {
                 let [x, y] = xy(c, w);
                 let cell = cel(puzzle, c, w);
+                if (!this.or.includes(cell.type)) continue;
                 if (!cell.flip) {
                     h_fulcra.push(c)
                     xmin = Math.min(xmin, x)
