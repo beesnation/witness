@@ -297,7 +297,12 @@ function drawSymbols(puzzle, svg, target) {
         'y': y*41 + 23,
         'class': target + '_' + x + '_' + y,
       }
-      if (cell.dot >= window.SOUND_DOT) {
+      if (cell.dot >= CUSTOM_COMPARATOR) {
+        params.type = 'comparator';
+        params.color = '#00c000ff'
+        params.flip = cell.dot - CUSTOM_COMPARATOR
+        window.drawSymbolWithSvg(svg, params)
+      } else if (cell.dot >= window.SOUND_DOT) {
         params.type = 'dot';
         params.color = '#ff6666ff';
         params.size = cell.dot - window.SOUND_DOT + 1;

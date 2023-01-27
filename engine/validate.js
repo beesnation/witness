@@ -755,7 +755,8 @@ function init(puzzle) { // initialize globals
             if (cell?.type == 'line') {
                 if (window.CUSTOM_BRIDGE <= cell?.gap) st.add('bridgeButActually');
                 else if (!cell.dot) continue;
-                if (cell.dot >= window.SOUND_DOT) st.add('soundDot')
+                if (cell.dot >= window.CUSTOM_COMPARATOR) st.add('comparator')
+                else if (cell.dot >= window.SOUND_DOT) st.add('soundDot')
                 else if (window.CUSTOM_DOTS  <= cell.dot && cell.dot < window.SOUND_DOT   ) st.add('dots')
                 else if (window.DOT_BLACK    <= cell.dot && cell.dot < window.CUSTOM_DOTS ) st.add('dot');
                 else if (window.CUSTOM_CROSS >= cell.dot && cell.dot > window.CUSTOM_CURVE) st.add('cross');
@@ -1113,7 +1114,7 @@ const lineValidate = [
             for (let o of global.path) {
                 [x, y] = xy(o[0]);
                 cell = puzzle.getCell(x, y);
-                if (!cell.dot || cell.dot < window.SOUND_DOT) continue;
+                if (!cell.dot || cell.dot < window.SOUND_DOT || cell.dot >= window.CUSTOM_COMPARATOR) continue;
                 if ((cell.dot - 39) != puzzle.soundDots[i]) {
                     console.info('[line][!] sound dots order wrong: ', x, y, puzzle.soundDots[i], cell.dot - 39);
                     global.regionData[0].push(o[0]);
@@ -1122,15 +1123,33 @@ const lineValidate = [
                 i++;
             }
         }
+    }, {
+        '_name': "COMPARATOR CHECK",
+        'or': ['comparator'],
+        'exec': function(puzzle, global, quick) {
+            for (let o of global.path) {
+                let [x, y] = xy(o[0])
+                let cell = puzzle.getCell(x, y)
+                if (cell.dot !== window.CUSTOM_COMPARATOR && cell.dot !== window.CUSTOM_COMPARATOR_FLIPPED) continue;
+
+                let dir = cell.dot === window.CUSTOM_COMPARATOR_FLIPPED ? 1 : -1
+                let smallRegion = global.regions.cell.findIndex(r => r.includes(x%2 ? ret(x, y+dir) : ret(x+dir, y )))
+                let largeRegion = global.regions.cell.findIndex(r => r.includes(x%2 ? ret(x, y-dir) : ret(x-dir, y )))
+                if (smallRegion < 0 || largeRegion < 0 || global.regions.cell[smallRegion].length >= global.regions.cell[largeRegion].length) {
+                    global.regionData[0].push(o[0])
+                    if (!puzzle.valid && quick) return;
+                }
+            }
+        }
     }
 ]
 
 const validate = [
     {
         '_name': 'DOT CHECK',
-        'or': ['dot', 'cross', 'curve', 'dots', 'soundDot'],
+        'or': ['dot', 'cross', 'curve', 'dots', 'soundDot', 'comparator'],
         'exec': function(puzzle, regionNum, global, quick) {
-            const dots = [window.DOT_BLACK, window.DOT_BLUE, window.DOT_YELLOW, window.DOT_INVISIBLE, window.CUSTOM_CROSS_FILLED, window.CUSTOM_CROSS_BLUE_FILLED, window.CUSTOM_CROSS_YELLOW_FILLED, window.CUSTOM_CURVE_FILLED, window.CUSTOM_CURVE_BLUE_FILLED, window.CUSTOM_CURVE_YELLOW_FILLED, 13, 15, 17, 18, 20, 22, 24, 25, 27, 29, 31, 32, 34, 36, 38, 39];
+            const dots = [window.DOT_BLACK, window.DOT_BLUE, window.DOT_YELLOW, window.DOT_INVISIBLE, window.CUSTOM_CROSS_FILLED, window.CUSTOM_CROSS_BLUE_FILLED, window.CUSTOM_CROSS_YELLOW_FILLED, window.CUSTOM_CURVE_FILLED, window.CUSTOM_CURVE_BLUE_FILLED, window.CUSTOM_CURVE_YELLOW_FILLED, 13, 15, 17, 18, 20, 22, 24, 25, 27, 29, 31, 32, 34, 36, 38, 39, window.CUSTOM_COMPARATOR, window.CUSTOM_COMPARATOR_FLIPPED];
             for (let c of global.regionCells.line[regionNum]) {
                 let cell = cel(puzzle, c);
                 if (dots.includes(cell?.dot) || cell?.dot >= window.SOUND_DOT || cell?.gap >= window.CUSTOM_BRIDGE) { // bonk

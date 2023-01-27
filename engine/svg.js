@@ -789,6 +789,9 @@ namespace(function () {
         simplePath(svg, params, 'M 0 0 L -5 8.6 H 5 z  M 6 0 Q 8 0 8 2 H 14 A 4 4 0 1 0 14 -6 H 8 Q 8 -4 6 -4 H -6 Q -8 -4 -8 -6 H -14 A 4 4 0 1 0 -14 2 H -8 Q -8 0 -6 0 z')
             .setAttribute('transform', `translate(${midx}, ${midy}) rotate(${90 * params.flip})`);
         break;
+      case 'comparator':
+        simplePoly(svg, params, "-12 0, 12 13.8, 12 -13.8, -12 0").setAttribute('transform', `translate(${midx}, ${midy}) rotate(${180 * params.flip + 90*(!(params.x%2))})`)
+        break;
       case 'none': break;
       default: //------------------------------------ERROR HANDLING
         console.error('Cannot draw unknown SVG type: ' + params.type)
