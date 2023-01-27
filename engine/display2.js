@@ -299,7 +299,7 @@ function drawSymbols(puzzle, svg, target) {
       }
       if (cell.dot >= CUSTOM_COMPARATOR) {
         params.type = 'comparator';
-        params.color = '#00c000ff'
+        params.color = '#008060ff'
         params.flip = cell.dot - CUSTOM_COMPARATOR
         window.drawSymbolWithSvg(svg, params)
       } else if (cell.dot >= window.SOUND_DOT) {
