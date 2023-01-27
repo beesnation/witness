@@ -92,6 +92,8 @@ namespace(function () {
   window.CUSTOM_CURVE_YELLOW = -11
   window.CUSTOM_CURVE_YELLOW_FILLED = -12
   window.SOUND_DOT = 40
+  window.CUSTOM_COMPARATOR = 48
+  window.CUSTOM_COMPARATOR_FLIPPED = 49
   window.CUSTOM_X = -13
   window.GAP_NONE = 0
   window.GAP_BREAK = 1
