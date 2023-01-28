@@ -790,7 +790,7 @@ namespace(function () {
             .setAttribute('transform', `translate(${midx}, ${midy}) rotate(${90 * params.flip})`);
         break;
       case 'comparator':
-        simplePoly(svg, params, "-22 0, 16 12, 16 -12, -22 0").setAttribute('transform', `translate(${midx}, ${midy}) rotate(${180 * params.flip + 90*(!(1-params.y%2))})`)
+        simplePoly(svg, params, "-22 0, 16 12, 16 -12, -22 0").setAttribute('transform', `translate(${midx}, ${midy}) rotate(${180 * params.flip + 90*(params.y%2)})`)
         break;
       case 'none': break;
       default: //------------------------------------ERROR HANDLING

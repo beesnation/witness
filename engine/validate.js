@@ -697,7 +697,8 @@ function init(puzzle) { // initialize globals
             let cell = puzzle.grid[x][y];
             if (cell == null) continue;
             // dots
-            if (cell.dot >= window.SOUND_DOT) global.shapes.add('soundDot')
+            if (cell.dot >= window.CUSTOM_COMPARATOR) global.shapes.add('comparator')
+            else if (window.SOUND_DOT   <= cell.dot && cell.dot <  window.CUSTOM_COMPARATOR) global.shapes.add('soundDot')
             else if (window.CUSTOM_DOTS <= cell.dot && cell.dot <  window.SOUND_DOT   ) global.shapes.add('dots')
             else if (window.DOT_NONE     < cell.dot && cell.dot <  window.CUSTOM_DOTS ) global.shapes.add('dot')
             else if (window.CUSTOM_CURVE < cell.dot && cell.dot <= window.CUSTOM_CROSS) global.shapes.add('cross')
@@ -756,7 +757,7 @@ function init(puzzle) { // initialize globals
                 if (window.CUSTOM_BRIDGE <= cell?.gap) st.add('bridgeButActually');
                 else if (!cell.dot) continue;
                 if (cell.dot >= window.CUSTOM_COMPARATOR) st.add('comparator')
-                else if (cell.dot >= window.SOUND_DOT) st.add('soundDot')
+                else if (window.SOUND_DOT    <= cell.dot && cell.dot < window.CUSTOM_COMPARATOR) st.add('soundDot')
                 else if (window.CUSTOM_DOTS  <= cell.dot && cell.dot < window.SOUND_DOT   ) st.add('dots')
                 else if (window.DOT_BLACK    <= cell.dot && cell.dot < window.CUSTOM_DOTS ) st.add('dot');
                 else if (window.CUSTOM_CROSS >= cell.dot && cell.dot > window.CUSTOM_CURVE) st.add('cross');
@@ -1127,8 +1128,8 @@ const lineValidate = [
         '_name': "COMPARATOR CHECK",
         'or': ['comparator'],
         'exec': function(puzzle, global, quick) {
-            for (let o of global.path) {
-                let [x, y] = xy(o[0])
+            for (let o of global.regionCells.edge[0]) {
+                let [x, y] = xy(o)
                 let cell = puzzle.getCell(x, y)
                 if (cell.dot !== window.CUSTOM_COMPARATOR && cell.dot !== window.CUSTOM_COMPARATOR_FLIPPED) continue;
 
@@ -1136,7 +1137,7 @@ const lineValidate = [
                 let smallRegion = global.regions.cell.findIndex(r => r.includes(x%2 ? ret(x, y+dir) : ret(x+dir, y )))
                 let largeRegion = global.regions.cell.findIndex(r => r.includes(x%2 ? ret(x, y-dir) : ret(x-dir, y )))
                 if (smallRegion < 0 || largeRegion < 0 || global.regions.cell[smallRegion].length >= global.regions.cell[largeRegion].length) {
-                    global.regionData[0].push(o[0])
+                    global.regionData[0].push(o)
                     if (!puzzle.valid && quick) return;
                 }
             }
