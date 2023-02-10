@@ -527,7 +527,7 @@ namespace(function () {
     'null': { 'type': 'null', 'title': 'Null Symbol' },
     'bridgeButActually': { 'type': 'bridgeButActually', 'flip': false, 'title': 'Kube\'s Bridges' },
     'fulcrum': { 'type': 'fulcrum', 'flip': false, 'title': 'Bees\' Fulcra'},
-    'comparator': { 'type': 'comparator', 'flip':false, 'title': 'TheFullestCircle\'s placeholdername'}, //TODO
+    'comparator': { 'type': 'comparator', 'flip':false, 'title': 'TheFullestCircle\'s Pennants'}, //TODO
     'none': { 'type': 'none', 'title': 'Symbol Coming Soon!' }
   }
   let xButtons = [];
