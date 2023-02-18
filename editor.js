@@ -527,7 +527,8 @@ namespace(function () {
     'null': { 'type': 'null', 'title': 'Null Symbol' },
     'bridgeButActually': { 'type': 'bridgeButActually', 'flip': false, 'title': 'Kube\'s Bridges' },
     'fulcrum': { 'type': 'fulcrum', 'flip': false, 'title': 'Bees\' Fulcra'},
-    'comparator': { 'type': 'comparator', 'flip':false, 'title': 'TheFullestCircle\'s Pennants'}, //TODO
+    'comparator': { 'type': 'comparator', 'flip':false, 'title': 'TheFullestCircle\'s Pennants'},
+    'crossing': { 'type': 'crossing', 'title': 'Bees\' Crossings'},
     'none': { 'type': 'none', 'title': 'Symbol Coming Soon!' }
   }
   let xButtons = [];
@@ -1009,6 +1010,9 @@ namespace(function () {
     } else if (['comparator'].includes(activeParams.type)) {
       if (x % 2 === y % 2) return
       puzzle.grid[x][y].dot = getNextValue([undefined, window.CUSTOM_COMPARATOR, window.CUSTOM_COMPARATOR_FLIPPED], puzzle.grid[x][y].dot)
+    } else if (['crossing'].includes(activeParams.type)) {
+      if (x % 2 || y % 2) return
+      puzzle.grid[x][y].gap = puzzle.grid[x][y].gap !== CUSTOM_CROSSING ? CUSTOM_CROSSING : GAP_NONE
     } else if (['square', 'star', 'nega', 'bridge', 'sizer', 'twobytwo', 'vtriangle', 'pentagon', 'copier', 'celledhex', 'portal', 'blackhole', 'whitehole', 'pokerchip', 'null'].includes(activeParams.type)) {
       if (x % 2 !== 1 || y % 2 !== 1) return
       // Only remove the element if it's an exact match

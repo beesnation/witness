@@ -181,6 +181,19 @@ function drawGrid(puzzle, svg, target) {
         drawSymbolWithSvg(svg, params)
         continue;
       }
+      if (cell?.gap >= window.CUSTOM_CROSSING) {
+        var params = {
+          'width':58,
+          'height':58,
+          'x': x*41 + 23,
+          'y': y*41 + 23,
+          'class': target + '_' + x + '_' + y,
+          'type': 'crossing',
+          'color': 'var(--line-default)'
+        }
+        drawSymbolWithSvg(svg, params)
+        continue;
+      }
       if (cell?.gap >= window.CUSTOM_BRIDGE) {
         var params = {
           'width':58,

@@ -975,7 +975,7 @@ function pushCursor(dx, dy) {
     if (data.x < data.bbox.middle.x) {
       push(dx, dy, 'topbottom', 'right')
       // Overshot the intersection and appears to be trying to turn
-      if (data.x > data.bbox.middle.x && Math.abs(dy) * turnMod > Math.abs(dx)) {
+      if (data.x > data.bbox.middle.x && Math.abs(dy) * turnMod > Math.abs(dx) && cell.gap !== window.CUSTOM_CROSSING) {
         data.y += Math.sign(dy) * (data.x - data.bbox.middle.x)
         data.x = data.bbox.middle.x
         return 'overshot moving right'
@@ -984,7 +984,7 @@ function pushCursor(dx, dy) {
     } else if (data.x > data.bbox.middle.x) {
       push(dx, dy, 'topbottom', 'left')
       // Overshot the intersection and appears to be trying to turn
-      if (data.x < data.bbox.middle.x && Math.abs(dy) * turnMod > Math.abs(dx)) {
+      if (data.x < data.bbox.middle.x && Math.abs(dy) * turnMod > Math.abs(dx) && cell.gap !== window.CUSTOM_CROSSING) {
         data.y += Math.sign(dy) * (data.bbox.middle.x - data.x)
         data.x = data.bbox.middle.x
         return 'overshot moving left'
@@ -994,7 +994,7 @@ function pushCursor(dx, dy) {
     if (data.y < data.bbox.middle.y) {
       push(dx, dy, 'leftright', 'bottom')
       // Overshot the intersection and appears to be trying to turn
-      if (data.y > data.bbox.middle.y && Math.abs(dx) * turnMod > Math.abs(dy)) {
+      if (data.y > data.bbox.middle.y && Math.abs(dx) * turnMod > Math.abs(dy) && cell.gap !== window.CUSTOM_CROSSING) {
         data.x += Math.sign(dx) * (data.y - data.bbox.middle.y)
         data.y = data.bbox.middle.y
         return 'overshot moving down'
@@ -1003,7 +1003,7 @@ function pushCursor(dx, dy) {
     } else if (data.y > data.bbox.middle.y) {
       push(dx, dy, 'leftright', 'top')
       // Overshot the intersection and appears to be trying to turn
-      if (data.y < data.bbox.middle.y && Math.abs(dx) * turnMod > Math.abs(dy)) {
+      if (data.y < data.bbox.middle.y && Math.abs(dx) * turnMod > Math.abs(dy) && cell.gap !== window.CUSTOM_CROSSING) {
         data.x += Math.sign(dx) * (data.bbox.middle.y - data.y)
         data.y = data.bbox.middle.y
         return 'overshot moving up'
@@ -1078,7 +1078,7 @@ function move() {
     if (cell == null || cell.type !== 'line' || cell.gap === window.GAP_FULL) {
       console.spam('Collided with outside / gap-2', cell)
       data.x = data.bbox.x1 + 12
-    } else if (cell.line > window.LINE_NONE && lastDir !== MOVE_RIGHT) {
+    } else if (cell.line > window.LINE_NONE && lastDir !== MOVE_RIGHT && cell.gap !== window.CUSTOM_CROSSING) {
       console.spam('Collided with other line', cell.line)
       data.x = data.bbox.x1 + 12
     } else if (data.puzzle.symmetry != null) {
@@ -1096,7 +1096,7 @@ function move() {
     if (cell == null || cell.type !== 'line' || cell.gap === window.GAP_FULL) {
       console.spam('Collided with outside / gap-2', cell)
       data.x = data.bbox.x2 - 12
-    } else if (cell.line > window.LINE_NONE && lastDir !== MOVE_LEFT) {
+    } else if (cell.line > window.LINE_NONE && lastDir !== MOVE_LEFT && cell.gap !== window.CUSTOM_CROSSING) {
       console.spam('Collided with other line', cell.line)
       data.x = data.bbox.x2 - 12
     } else if (data.puzzle.symmetry != null) {
@@ -1114,7 +1114,7 @@ function move() {
     if (cell == null || cell.type !== 'line' || cell.gap === window.GAP_FULL) {
       console.spam('Collided with outside / gap-2', cell)
       data.y = data.bbox.y1 + 12
-    } else if (cell.line > window.LINE_NONE && lastDir !== MOVE_BOTTOM) {
+    } else if (cell.line > window.LINE_NONE && lastDir !== MOVE_BOTTOM && cell.gap !== window.CUSTOM_CROSSING) {
       console.spam('Collided with other line', cell.line)
       data.y = data.bbox.y1 + 12
     } else if (data.puzzle.symmetry != null) {
@@ -1132,7 +1132,7 @@ function move() {
     if (cell == null || cell.type !== 'line' || cell.gap === window.GAP_FULL) {
       console.spam('Collided with outside / gap-2')
       data.y = data.bbox.y2 - 12
-    } else if (cell.line > window.LINE_NONE && lastDir !== MOVE_TOP) {
+    } else if (cell.line > window.LINE_NONE && lastDir !== MOVE_TOP && cell.gap !== window.CUSTOM_CROSSING) {
       console.spam('Collided with other line', cell.line)
       data.y = data.bbox.y2 - 12
     } else if (data.puzzle.symmetry != null) {

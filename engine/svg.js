@@ -792,6 +792,13 @@ namespace(function () {
       case 'comparator':
         simplePoly(svg, params, "-22 0, 16 12, 16 -12, -22 0").setAttribute('transform', `translate(${midx}, ${midy}) rotate(${180 * params.flip + 90*(params.y%2)})`)
         break;
+      case 'crossing':
+        // simplePath(svg, params, 'M 30 12 Q 12 12 12 30 h -24 Q -12 12 -30 12 v -24 Q -12 -12 -12 -30 h 24 Q 12 -12 30 -12 z').setAttribute('fill', 'var(--line-undone)')
+        let cr = simplePoly(svg, params, "40 0 0 40 -40 0 0 -40")
+        cr.setAttribute("fill", "none")
+        cr.setAttribute("stroke", "var(--line-undone)")
+        cr.setAttribute("stroke-width", 5)
+        break;
       case 'none': break;
       default: //------------------------------------ERROR HANDLING
         console.error('Cannot draw unknown SVG type: ' + params.type)

@@ -101,6 +101,7 @@ namespace(function () {
   window.CUSTOM_LINE = 3
   window.CUSTOM_BRIDGE = 4
   window.CUSTOM_BRIDGE_FLIPPED = 5
+  window.CUSTOM_CROSSING = 6
 
   window.symbols = ['square', 'star', 'pentagon', 'triangle', 'arrow', 'dart', 'atriangle', 'vtriangle', 'blackhole', 'whitehole', 'divdiamond', 'pokerchip', 'bridge', 'scaler', 'sizer', 'twobytwo', 'poly', 'ylop', 'polynt', 'nega', 'copier', 'portal', 'celledhex', 'dice', 'xvmino', 'crystal', '!poly', '!ylop', '!polynt', '!xvmino', 'swirl', 'eye', 'bell', 'drop', 'null', 'fulcrum'];
   window.polyominoes = ['poly', 'ylop', 'polynt', 'xvmino'];
