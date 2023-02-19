@@ -949,7 +949,8 @@ function pushCursor(dx, dy) {
 
   // Inner wall collision
   if (cell.end == null) {
-    if (data.pos.x%2 === 1 && data.pos.y%2 === 0) { // Horizontal cell
+    if (data.pos.x%2 === 1 && data.pos.y%2 === 0 ||
+        cell.gap === window.CUSTOM_CROSSING && [MOVE_LEFT,MOVE_RIGHT].includes(data.path[data.path.length-1].dir)) { // Horizontal cell
       if (data.x < data.bbox.middle.x) {
         push(dx, dy, 'topbottom', 'left')
         return 'topbottom inner wall, moved left'
@@ -957,7 +958,8 @@ function pushCursor(dx, dy) {
         push(dx, dy, 'topbottom', 'right')
         return 'topbottom inner wall, moved right'
       }
-    } else if (data.pos.x%2 === 0 && data.pos.y%2 === 1) { // Vertical cell
+    } else if (data.pos.x%2 === 0 && data.pos.y%2 === 1 ||
+        cell.gap === window.CUSTOM_CROSSING && [MOVE_TOP,MOVE_BOTTOM].includes(data.path[data.path.length-1].dir)) { // Horizontal cell
       if (data.y < data.bbox.middle.y) {
         push(dx, dy, 'leftright', 'top')
         return 'leftright inner wall, moved up'
@@ -975,7 +977,7 @@ function pushCursor(dx, dy) {
     if (data.x < data.bbox.middle.x) {
       push(dx, dy, 'topbottom', 'right')
       // Overshot the intersection and appears to be trying to turn
-      if (data.x > data.bbox.middle.x && Math.abs(dy) * turnMod > Math.abs(dx) && cell.gap !== window.CUSTOM_CROSSING) {
+      if (data.x > data.bbox.middle.x && Math.abs(dy) * turnMod > Math.abs(dx)) {
         data.y += Math.sign(dy) * (data.x - data.bbox.middle.x)
         data.x = data.bbox.middle.x
         return 'overshot moving right'
@@ -984,7 +986,7 @@ function pushCursor(dx, dy) {
     } else if (data.x > data.bbox.middle.x) {
       push(dx, dy, 'topbottom', 'left')
       // Overshot the intersection and appears to be trying to turn
-      if (data.x < data.bbox.middle.x && Math.abs(dy) * turnMod > Math.abs(dx) && cell.gap !== window.CUSTOM_CROSSING) {
+      if (data.x < data.bbox.middle.x && Math.abs(dy) * turnMod > Math.abs(dx)) {
         data.y += Math.sign(dy) * (data.bbox.middle.x - data.x)
         data.x = data.bbox.middle.x
         return 'overshot moving left'
@@ -994,7 +996,7 @@ function pushCursor(dx, dy) {
     if (data.y < data.bbox.middle.y) {
       push(dx, dy, 'leftright', 'bottom')
       // Overshot the intersection and appears to be trying to turn
-      if (data.y > data.bbox.middle.y && Math.abs(dx) * turnMod > Math.abs(dy) && cell.gap !== window.CUSTOM_CROSSING) {
+      if (data.y > data.bbox.middle.y && Math.abs(dx) * turnMod > Math.abs(dy)) {
         data.x += Math.sign(dx) * (data.y - data.bbox.middle.y)
         data.y = data.bbox.middle.y
         return 'overshot moving down'
@@ -1003,7 +1005,7 @@ function pushCursor(dx, dy) {
     } else if (data.y > data.bbox.middle.y) {
       push(dx, dy, 'leftright', 'top')
       // Overshot the intersection and appears to be trying to turn
-      if (data.y < data.bbox.middle.y && Math.abs(dx) * turnMod > Math.abs(dy) && cell.gap !== window.CUSTOM_CROSSING) {
+      if (data.y < data.bbox.middle.y && Math.abs(dx) * turnMod > Math.abs(dy)) {
         data.x += Math.sign(dx) * (data.bbox.middle.y - data.y)
         data.y = data.bbox.middle.y
         return 'overshot moving up'
