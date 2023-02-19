@@ -856,7 +856,7 @@ namespace(function () {
   function onElementClicked(event, x, y, update = true) {
     if (activeParams.type == 'start') {
       if (x % 2 === 1 && y % 2 === 1) return
-      if (puzzle.grid[x][y].gap != undefined) return
+      if (puzzle.grid[x][y].gap && puzzle.grid[x][y].gap !== CUSTOM_CROSSING) return
 
       let scr = 1;
       if (activeParams.opposite) scr = 2;
@@ -870,7 +870,7 @@ namespace(function () {
       }
     } else if (activeParams.type == 'end') {
       if (x % 2 === 1 && y % 2 === 1) return
-      if (puzzle.grid[x][y].gap != undefined) return
+      if (puzzle.grid[x][y].gap && puzzle.grid[x][y].gap !== CUSTOM_CROSSING) return
 
       let validDirs = puzzle.getValidEndDirs(x, y)
 
@@ -919,7 +919,6 @@ namespace(function () {
         dotColors.push(4)
       }
       puzzle.grid[x][y].dot = getNextValue(dotColors, puzzle.grid[x][y].dot)
-      if (puzzle.grid[x][y].gap >= window.CUSTOM_LINE) puzzle.grid[x][y].gap = undefined
     } else if (activeParams.type == 'cross' || activeParams.type == 'curve') {
       let offset = 0;
       if (activeParams.type == 'curve') offset = -6;
@@ -932,7 +931,6 @@ namespace(function () {
         dotColors.push(-6 + offset)
       }
       puzzle.grid[x][y].dot = getNextValue(dotColors, puzzle.grid[x][y].dot)
-      if (puzzle.grid[x][y].gap >= window.CUSTOM_LINE) puzzle.grid[x][y].gap = undefined
     } else if (activeParams.type == 'x') {
       if (x % 2 !== 0 || y % 2 !== 0) return
       let spokes = activeParams.spokes - 1;
@@ -944,7 +942,6 @@ namespace(function () {
       puzzle.grid = savedGrid
       if (puzzle.grid[x][y].dot == -13 - spokes) delete puzzle.grid[x][y].dot
       else puzzle.grid[x][y].dot = -13 - spokes;
-      if (puzzle.grid[x][y].gap >= window.CUSTOM_LINE) puzzle.grid[x][y].gap = undefined
     } else if (activeParams.type == 'dots') {
       if (x % 2 === 1 && y % 2 === 1) return
       let offset = 4 + (7 * activeParams.count);
@@ -957,7 +954,6 @@ namespace(function () {
       }
       dotColors.push(7 + offset);
       puzzle.grid[x][y].dot = getNextValue(dotColors, puzzle.grid[x][y].dot);
-      if (puzzle.grid[x][y].gap >= window.CUSTOM_LINE) puzzle.grid[x][y].gap = undefined
     } else if (['gap', 'line', 'bridgeButActually'].includes(activeParams.type)) {
       if (x % 2 === y % 2) return
       puzzle.grid[x][y].gap = getNextValue({
@@ -1012,6 +1008,16 @@ namespace(function () {
       puzzle.grid[x][y].dot = getNextValue([undefined, window.CUSTOM_COMPARATOR, window.CUSTOM_COMPARATOR_FLIPPED], puzzle.grid[x][y].dot)
     } else if (['crossing'].includes(activeParams.type)) {
       if (x % 2 || y % 2) return
+
+      let leftCell = puzzle.getCell(x - 1, y)
+      if (puzzle.grid[x][y].end !== "left" && (leftCell == null || leftCell.gap === 2)) return;
+      let rightCell = puzzle.getCell(x + 1, y)
+      if (puzzle.grid[x][y].end !== "right" && (rightCell == null || rightCell.gap === 2)) return;
+      let topCell = puzzle.getCell(x, y - 1)
+      if (puzzle.grid[x][y].end !== "top" && (topCell == null || topCell.gap === 2)) return;
+      let bottomCell = puzzle.getCell(x, y + 1)
+      if (puzzle.grid[x][y].end !== "bottom" && (bottomCell == null || bottomCell.gap === 2)) return;
+
       puzzle.grid[x][y].gap = puzzle.grid[x][y].gap !== CUSTOM_CROSSING ? CUSTOM_CROSSING : GAP_NONE
     } else if (['square', 'star', 'nega', 'bridge', 'sizer', 'twobytwo', 'vtriangle', 'pentagon', 'copier', 'celledhex', 'portal', 'blackhole', 'whitehole', 'pokerchip', 'null'].includes(activeParams.type)) {
       if (x % 2 !== 1 || y % 2 !== 1) return
