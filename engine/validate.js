@@ -379,7 +379,7 @@ function init(puzzle) { // initialize globals
             [_x, _y] = [rdiv(x + _dir[o][0], puzzle.width), y + _dir[o][1]];
             global.path.push([ret(_x, _y)]);
             let cell = cel(puzzle, ret(_x, _y));
-            if (cell?.gap >= window.CUSTOM_BRIDGE) {
+            if (window.bridges.includes(cell?.gap)) {
                 global.bridgeBranches ??= [];
                 global.bridgeBranches.push({
                     'type': cell.gap,
@@ -390,7 +390,7 @@ function init(puzzle) { // initialize globals
             if (puzzle.symmetry != null) {
                 let sym = puzzle.getSymmetricalPos(_x, _y);
                 let symCell = puzzle.getCell(sym.x, sym.y);
-                if (symCell?.gap >= window.CUSTOM_BRIDGE) {
+                if (window.bridges.includes(symCell?.gap)) {
                     global.bridgeBranches ??= [];
                     global.bridgeBranches.push({
                         'type': symCell.gap,
@@ -460,7 +460,7 @@ function init(puzzle) { // initialize globals
                         }
                     }
                 }
-                else if (cell?.gap >= window.CUSTOM_BRIDGE) global.shapes.add('bridgeButActually');
+                else if (window.bridges.includes(cell.gap)) global.shapes.add('bridgeButActually');
             }
         }
     }
@@ -725,7 +725,13 @@ function init(puzzle) { // initialize globals
 
     global.regionCells = { all: [], cell: [], line: [], corner: [], edge: [] };
     for (const region of global.regions.all) {
-        global.regionCells.all.push(region.filter(c => { let cell = cel(puzzle, c); if (!cell) return false; if (cell.type == 'line' && !cell.dot && (!cell?.gap || cell.gap < window.CUSTOM_BRIDGE)) return false; return true; }));
+        global.regionCells.all.push(region.filter(c => {
+            let cell = cel(puzzle, c);
+            if (!cell) return false;
+            if (cell.type !== 'line') return true;
+            if (cell.dot) return true;
+            return (cell.gap && window.bridges.includes(cell.gap));
+        }));
     }
     
     filterRegionArr(global.regionCells, 'all', 'cell',    detectionMode.cell);
@@ -754,7 +760,7 @@ function init(puzzle) { // initialize globals
         for (shape of region) {
             const cell = cel(puzzle, shape);
             if (cell?.type == 'line') {
-                if (window.CUSTOM_BRIDGE <= cell?.gap) st.add('bridgeButActually');
+                if (window.CUSTOM_BRIDGE <= cell?.gap && cell?.gap < window.CUSTOM_CROSSING) st.add('bridgeButActually');
                 else if (!cell.dot) continue;
                 if (cell.dot >= window.CUSTOM_COMPARATOR) st.add('comparator')
                 else if (window.SOUND_DOT    <= cell.dot && cell.dot < window.CUSTOM_COMPARATOR) st.add('soundDot')
@@ -1153,7 +1159,7 @@ const validate = [
             const dots = [window.DOT_BLACK, window.DOT_BLUE, window.DOT_YELLOW, window.DOT_INVISIBLE, window.CUSTOM_CROSS_FILLED, window.CUSTOM_CROSS_BLUE_FILLED, window.CUSTOM_CROSS_YELLOW_FILLED, window.CUSTOM_CURVE_FILLED, window.CUSTOM_CURVE_BLUE_FILLED, window.CUSTOM_CURVE_YELLOW_FILLED, 13, 15, 17, 18, 20, 22, 24, 25, 27, 29, 31, 32, 34, 36, 38, 39, window.CUSTOM_COMPARATOR, window.CUSTOM_COMPARATOR_FLIPPED];
             for (let c of global.regionCells.line[regionNum]) {
                 let cell = cel(puzzle, c);
-                if (dots.includes(cell?.dot) || cell?.dot >= window.SOUND_DOT || cell?.gap >= window.CUSTOM_BRIDGE) { // bonk
+                if (dots.includes(cell?.dot) || cell?.dot >= window.SOUND_DOT || window.bridges.includes(cell?.gap)) { // bonk
                     global.regionData[regionNum].push(c);
                     if (!puzzle.valid && quick) return;
                 }
@@ -1166,7 +1172,7 @@ const validate = [
             let br = global.bridgeBranches?.map(x => ret(x.pos.x, x.pos.y));
             for (let c of global.regionCells.edge[regionNum]) {
                 let cell = cel(puzzle, c);
-                if (cell?.gap >= window.CUSTOM_BRIDGE && !br?.includes(c)) { // bonk
+                if (window.bridges.includes(cell?.gap) && !br?.includes(c)) { // bonk
                     global.regionData[regionNum].push(c);
                     if (!puzzle.valid && quick) return;
                 }

@@ -105,6 +105,7 @@ namespace(function () {
 
   window.symbols = ['square', 'star', 'pentagon', 'triangle', 'arrow', 'dart', 'atriangle', 'vtriangle', 'blackhole', 'whitehole', 'divdiamond', 'pokerchip', 'bridge', 'scaler', 'sizer', 'twobytwo', 'poly', 'ylop', 'polynt', 'nega', 'copier', 'portal', 'celledhex', 'dice', 'xvmino', 'crystal', '!poly', '!ylop', '!polynt', '!xvmino', 'swirl', 'eye', 'bell', 'drop', 'null', 'fulcrum'];
   window.polyominoes = ['poly', 'ylop', 'polynt', 'xvmino'];
+  window.bridges = [window.CUSTOM_BRIDGE, window.CUSTOM_BRIDGE_FLIPPED]
   window.endEnum = ['top', 'right', 'left', 'bottom'];
   window.themeArgs = ['background', 'outer', 'inner', 'text', 'line-undone', 'line-default', 'line-success', 'line-primary', 'line-secondary'];
   window.imageArgs = ['background-image', 'foreground-image', 'background-music', 'cursor-image', 'veil-image'];
