@@ -94,6 +94,9 @@ namespace(function () {
   window.SOUND_DOT = 40
   window.CUSTOM_COMPARATOR = 48
   window.CUSTOM_COMPARATOR_FLIPPED = 49
+  window.CUSTOM_FISH = 50
+  window.CUSTOM_FISH_BLUE = 51
+  window.CUSTOM_FISH_YELLOW = 52
   window.CUSTOM_X = -13
   window.GAP_NONE = 0
   window.GAP_BREAK = 1

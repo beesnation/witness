@@ -529,6 +529,7 @@ namespace(function () {
     'fulcrum': { 'type': 'fulcrum', 'flip': false, 'title': 'Bees\' Fulcra'},
     'comparator': { 'type': 'comparator', 'flip':false, 'title': 'TheFullestCircle\'s Pennants'},
     'crossing': { 'type': 'crossing', 'title': 'Bees\' Crossings'},
+    'fish': { 'type': 'fish', 'title': 'Jony & Raz\'s fish'},
     'none': { 'type': 'none', 'title': 'Symbol Coming Soon!' }
   }
   let xButtons = [];
@@ -930,6 +931,10 @@ namespace(function () {
         dotColors.push(-5 + offset)
         dotColors.push(-6 + offset)
       }
+      puzzle.grid[x][y].dot = getNextValue(dotColors, puzzle.grid[x][y].dot)
+    } else if (activeParams.type == 'fish') {
+      if (x % 2 !== 0 && y % 2 !== 0) return
+      let dotColors = (puzzle.symmetry == null) ? [undefined, window.CUSTOM_FISH] : [undefined, window.CUSTOM_FISH, window.CUSTOM_FISH_BLUE, window.CUSTOM_FISH_YELLOW];
       puzzle.grid[x][y].dot = getNextValue(dotColors, puzzle.grid[x][y].dot)
     } else if (activeParams.type == 'x') {
       if (x % 2 !== 0 || y % 2 !== 0) return

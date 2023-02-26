@@ -799,6 +799,9 @@ namespace(function () {
         cr.setAttribute("stroke", "var(--line-undone)")
         cr.setAttribute("stroke-width", 5)
         break;
+      case 'fish':
+        simplePath(svg, params, 'M -10 0 A 10 10 90 1 0 -3.42 -9.4 C -8.5 -7.46 -6.8 -0.52 -2.52 -0.1 C 3.42 0.22 0.44 10.62 -6.34 4.4 C -8.12 2.76 -10.04 -2.1 -6.78 -6.12 C -7.58 -5.6 -9.8 -3.8 -10 0')
+        break;
       case 'none': break;
       default: //------------------------------------ERROR HANDLING
         console.error('Cannot draw unknown SVG type: ' + params.type)

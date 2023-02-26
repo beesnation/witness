@@ -310,7 +310,13 @@ function drawSymbols(puzzle, svg, target) {
         'y': y*41 + 23,
         'class': target + '_' + x + '_' + y,
       }
-      if (cell.dot >= CUSTOM_COMPARATOR) {
+      if (cell.dot >= CUSTOM_FISH) {
+        params.type = 'fish';
+        if (cell.dot === CUSTOM_FISH) params.color = 'black';
+        else if (cell.dot === CUSTOM_FISH_BLUE) params.color = '#' + puzzle.theme['line-primary'].toString(16).slice(0, 6);
+        else if (cell.dot === CUSTOM_FISH_YELLOW) params.color = '#' + puzzle.theme['line-secondary'].toString(16).slice(0, 6);
+        window.drawSymbolWithSvg(svg, params)
+      } else if (cell.dot >= CUSTOM_COMPARATOR) {
         params.type = 'comparator';
         params.color = '#008060ff'
         params.flip = cell.dot - CUSTOM_COMPARATOR
