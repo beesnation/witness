@@ -684,8 +684,8 @@ namespace(function () {
       button.oncontextmenu = (event) => { event.preventDefault(); }
 
       while (button.firstChild) button.removeChild(button.firstChild)
-      if (button.id === 'fish') continue // TODO: remove this line when symbol public
       let svg = window.drawSymbol(params)
+      if (button.id === "fish") svg.setAttribute("visibility", "hidden") // TODO: remove when symbol public
       if (button.id == 'x-lu') {
         let fakebutton = document.getElementById('x-fakesvg')
         while (fakebutton.firstChild) fakebutton.removeChild(fakebutton.firstChild)
