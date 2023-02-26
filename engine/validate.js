@@ -1217,7 +1217,7 @@ const validate = [
             const dots = [window.DOT_BLACK, window.DOT_BLUE, window.DOT_YELLOW, window.DOT_INVISIBLE, window.CUSTOM_CROSS_FILLED, window.CUSTOM_CROSS_BLUE_FILLED, window.CUSTOM_CROSS_YELLOW_FILLED, window.CUSTOM_CURVE_FILLED, window.CUSTOM_CURVE_BLUE_FILLED, window.CUSTOM_CURVE_YELLOW_FILLED, 13, 15, 17, 18, 20, 22, 24, 25, 27, 29, 31, 32, 34, 36, 38, 39, window.CUSTOM_COMPARATOR, window.CUSTOM_COMPARATOR_FLIPPED];
             for (let c of global.regionCells.line[regionNum]) {
                 let cell = cel(puzzle, c);
-                if (dots.includes(cell?.dot) || cell?.dot >= window.SOUND_DOT || window.bridges.includes(cell?.gap)) { // bonk
+                if (dots.includes(cell?.dot) || cell?.dot >= window.SOUND_DOT && cell?.dot <= window.CUSTOM_COMPARATOR || window.bridges.includes(cell?.gap)) { // bonk
                     global.regionData[regionNum].push(c);
                     if (!puzzle.valid && quick) return;
                 }
