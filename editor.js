@@ -902,8 +902,8 @@ namespace(function () {
         puzzle.grid[x][y].gap = undefined
         if (puzzle.symmetry != undefined) {
           let sym = puzzle.getSymmetricalPos(x, y)
-          puzzle.updateCell2(sym.x, sym.y, 'start', null)
-          puzzle.updateCell2(sym.x, sym.y, 'end', null)
+          puzzle.updateCell2(sym.x, sym.y, 'start', undefined)
+          puzzle.updateCell2(sym.x, sym.y, 'end', undefined)
         }
       }
     } else if (activeParams.type == 'dot') {
