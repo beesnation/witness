@@ -529,7 +529,7 @@ namespace(function () {
     'fulcrum': { 'type': 'fulcrum', 'flip': false, 'title': 'Bees\' Fulcra'},
     'comparator': { 'type': 'comparator', 'flip':false, 'title': 'TheFullestCircle\'s Pennants'},
     'crossing': { 'type': 'crossing', 'title': 'Bees\' Crossings'},
-    'fish': { 'type': 'fish', 'title': 'Jony & Raz\'s fish'},
+    'fish': { 'type': 'fish', 'title': 'Symbol Coming Soon!'},
     'none': { 'type': 'none', 'title': 'Symbol Coming Soon!' }
   }
   let xButtons = [];
@@ -684,6 +684,7 @@ namespace(function () {
       button.oncontextmenu = (event) => { event.preventDefault(); }
 
       while (button.firstChild) button.removeChild(button.firstChild)
+      if (button.id === 'fish') continue // TODO: remove this line when symbol public
       let svg = window.drawSymbol(params)
       if (button.id == 'x-lu') {
         let fakebutton = document.getElementById('x-fakesvg')
