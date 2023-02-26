@@ -1073,7 +1073,7 @@ const preValidate = [
                 // too few fish
                 for (const c of uncollected_fish) {
                     let [x,y] = xy(c)
-                    let regionNum = global.regionMatrix[x][y]
+                    let regionNum = global.regionMatrix[y][x]
                     global.regionData[regionNum].push(c)
                     if (quick && !puzzle.valid) return;
                 }
