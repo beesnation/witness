@@ -310,9 +310,9 @@ function drawSymbols(puzzle, svg, target) {
         'y': y*41 + 23,
         'class': target + '_' + x + '_' + y,
       }
-      if (cell.dot >= CUSTOM_FISH) {
+      if (cell.dot >= CUSTOM_FISH_BLACK) {
         params.type = 'fish';
-        if (cell.dot === CUSTOM_FISH) params.color = 'black';
+        if (cell.dot === CUSTOM_FISH_BLACK) params.color = 'black';
         else if (cell.dot === CUSTOM_FISH_BLUE) params.color = '#' + puzzle.theme['line-primary'].toString(16).slice(0, 6);
         else if (cell.dot === CUSTOM_FISH_YELLOW) params.color = '#' + puzzle.theme['line-secondary'].toString(16).slice(0, 6);
         window.drawSymbolWithSvg(svg, params)

@@ -697,7 +697,8 @@ function init(puzzle) { // initialize globals
             let cell = puzzle.grid[x][y];
             if (cell == null) continue;
             // dots
-            if (cell.dot >= window.CUSTOM_COMPARATOR) global.shapes.add('comparator')
+            if (cell.dot >= window.CUSTOM_FISH_BLACK) global.shapes.add('fish')
+            else if (cell.dot >= window.CUSTOM_COMPARATOR) global.shapes.add('comparator')
             else if (window.SOUND_DOT   <= cell.dot && cell.dot <  window.CUSTOM_COMPARATOR) global.shapes.add('soundDot')
             else if (window.CUSTOM_DOTS <= cell.dot && cell.dot <  window.SOUND_DOT   ) global.shapes.add('dots')
             else if (window.DOT_NONE     < cell.dot && cell.dot <  window.CUSTOM_DOTS ) global.shapes.add('dot')
@@ -762,7 +763,8 @@ function init(puzzle) { // initialize globals
             if (cell?.type == 'line') {
                 if (window.CUSTOM_BRIDGE <= cell?.gap && cell?.gap < window.CUSTOM_CROSSING) st.add('bridgeButActually');
                 else if (!cell.dot) continue;
-                if (cell.dot >= window.CUSTOM_COMPARATOR) st.add('comparator')
+                if (cell.dot >= window.CUSTOM_FISH_BLACK) st.add('fish')
+                else if (cell.dot >= window.CUSTOM_COMPARATOR) st.add('comparator')
                 else if (window.SOUND_DOT    <= cell.dot && cell.dot < window.CUSTOM_COMPARATOR) st.add('soundDot')
                 else if (window.CUSTOM_DOTS  <= cell.dot && cell.dot < window.SOUND_DOT   ) st.add('dots')
                 else if (window.DOT_BLACK    <= cell.dot && cell.dot < window.CUSTOM_DOTS ) st.add('dot');
@@ -1023,6 +1025,62 @@ const preValidate = [
                 console.info('[!] Jerrymandering Failed');
                 puzzle.failmandering = true;
                 if (quick) return;
+            }
+        }
+    }, {
+        '_name': "FISH CHECK",
+        'or': ['fish'],
+        'exec': function(puzzle, global, quick) {
+            let collected_fish = new Set();
+            let uncollected_fish = new Set();
+
+            // find all fish
+            for (let regionNum = 0; regionNum < global.regions.line.length; regionNum++) for (let c of global.regions.line[regionNum]) {
+                let cell = cel(puzzle, c);
+
+                switch (cell?.dot) {
+                    case CUSTOM_FISH_BLACK:
+                        if (regionNum === 0) collected_fish.add(c);
+                        else uncollected_fish.add(c);
+                        break;
+                    case CUSTOM_FISH_BLUE:
+                    case CUSTOM_FISH_YELLOW:
+                        uncollected_fish.add(c)
+                        break;
+                }
+            }
+
+            // Mop up colourful fish (better performance than doing this in prev loop, right?)
+            if (puzzle.symmetry != null) {
+                for (let [c] in global.path) {
+                    let cell = cel(puzzle, c);
+                    if (cell?.dot === CUSTOM_FISH_BLUE) {
+                        uncollected_fish.remove(c)
+                        collected_fish.add(c)
+                    }
+                }
+                for (let [c] in global.pathSym) {
+                    let cell = cel(puzzle, c);
+                    if (cell?.dot === CUSTOM_FISH_YELLOW) {
+                        uncollected_fish.remove(c)
+                        collected_fish.add(c)
+                    }
+                }
+            }
+
+            let fishDiff = collected_fish.size - uncollected_fish.size;
+            if (fishDiff < -1) {
+                // too few fish
+                for (const c of uncollected_fish) {
+                    let [x,y] = xy(c)
+                    let regionNum = global.regionMatrix[x][y]
+                    global.regionData[regionNum].push(c)
+                    if (quick && !puzzle.valid) return;
+                }
+            }
+            else if (fishDiff > 1) {
+                // too many fish
+                for (const c of collected_fish) global.regionData.push(c);
             }
         }
     }

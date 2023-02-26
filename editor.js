@@ -934,7 +934,7 @@ namespace(function () {
       puzzle.grid[x][y].dot = getNextValue(dotColors, puzzle.grid[x][y].dot)
     } else if (activeParams.type == 'fish') {
       if (x % 2 !== 0 && y % 2 !== 0) return
-      let dotColors = (puzzle.symmetry == null) ? [undefined, window.CUSTOM_FISH] : [undefined, window.CUSTOM_FISH, window.CUSTOM_FISH_BLUE, window.CUSTOM_FISH_YELLOW];
+      let dotColors = (puzzle.symmetry == null) ? [undefined, window.CUSTOM_FISH_BLACK] : [undefined, window.CUSTOM_FISH_BLACK, window.CUSTOM_FISH_BLUE, window.CUSTOM_FISH_YELLOW];
       puzzle.grid[x][y].dot = getNextValue(dotColors, puzzle.grid[x][y].dot)
     } else if (activeParams.type == 'x') {
       if (x % 2 !== 0 || y % 2 !== 0) return
