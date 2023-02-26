@@ -1052,17 +1052,17 @@ const preValidate = [
 
             // Mop up colourful fish (better performance than doing this in prev loop, right?)
             if (puzzle.symmetry != null) {
-                for (let [c] in global.path) {
+                for (let [c] of global.path) {
                     let cell = cel(puzzle, c);
                     if (cell?.dot === CUSTOM_FISH_BLUE) {
-                        uncollected_fish.remove(c)
+                        uncollected_fish.delete(c)
                         collected_fish.add(c)
                     }
                 }
-                for (let [c] in global.pathSym) {
+                for (let [c] of global.pathSym) {
                     let cell = cel(puzzle, c);
                     if (cell?.dot === CUSTOM_FISH_YELLOW) {
-                        uncollected_fish.remove(c)
+                        uncollected_fish.delete(c)
                         collected_fish.add(c)
                     }
                 }
