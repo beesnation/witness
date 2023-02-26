@@ -143,7 +143,7 @@ namespace(function () {
     document.getElementById('makeStatuscoloring').checked = puzzle.statuscoloring;
     for (let o of puzzleCheckbox.map(x => document.getElementById(x))) o.style.background = o.checked ? 'var(--text)' : 'var(--background)';
     //* sound ui
-    let sounds = puzzle.grid.flat().filter(x => x?.dot >= 40).map(x => x.dot - 39).sort((a, b) => a - b);
+    let sounds = puzzle.grid.flat().filter(x => x?.dot >= SOUND_DOT && x?.dot < CUSTOM_COMPARATOR).map(x => x.dot - 39).sort((a, b) => a - b);
     temp = [...puzzle.soundDots];
     if (sounds != temp.sort((a, b) => a - b)) {
       temp = [...puzzle.soundDots];
