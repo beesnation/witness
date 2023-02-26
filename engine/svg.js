@@ -181,6 +181,7 @@ namespace(function () {
           rect.setAttribute('x', midx + xoffset)
           rect.setAttribute('y', midy - 12)
           rect.setAttribute('shape-rendering', 'crispedges')
+          rect.setAttribute('noflash', 'true')
         }
         break;
       case 'star': //------------------------------------STAR
@@ -772,18 +773,18 @@ namespace(function () {
           simplePath(svg, params, 'M 0 -4 C -14 -4 0 -24 0 -24 C 0 -24 14 -4 0 -4 L 0 -8 C 7 -8 0 -18 0 -19 C 0 -18 -7 -8 0 -8 M 6 -8 L 6 0 L -6 0 L -6 -8').setAttribute('transform', `translate(${midx}, ${midy}) rotate(${i * 72}) scale(${scale})`);
         break;
       case 'line':
-        if (!params.rot) {
-          simpleLine(svg, params, 28, 2, 90).setAttribute('fill', 'var(--line-default)')
-          simpleLine(svg, params, 28, 2, -90).setAttribute('fill', 'var(--line-default)')
-        } else {
-          simpleLine(svg, params, 28, 2, 0).setAttribute('fill', 'var(--line-default)')
-          simpleLine(svg, params, 28, 2, 180).setAttribute('fill', 'var(--line-default)')
+        let angles = params.rot ? [0, 180] : [90, -90]
+        for (let a of angles) {
+          let l = simpleLine(svg, params, 28, 2, a)
+          l.setAttribute('fill', 'var(--line-default)')
+          l.setAttribute('noflash', 'true')
         }
         break;
       case 'bridgeButActually':
         let br = simplePath(svg, params, 'M-36-12H-8A1 1 0 01-8 12H-36M8-12A1 1 0 018 12H36V-12')
         br.setAttribute('fill', 'var(--line-undone)')
         br.setAttribute('transform', `translate(${midx}, ${midy}) rotate(${180 * params.flip})`);
+        br.setAttribute('noflash', 'true')
         break;
       case 'fulcrum':
         simplePath(svg, params, 'M 0 0 L -5 8.6 H 5 z  M 6 0 Q 8 0 8 2 H 14 A 4 4 0 1 0 14 -6 H 8 Q 8 -4 6 -4 H -6 Q -8 -4 -8 -6 H -14 A 4 4 0 1 0 -14 2 H -8 Q -8 0 -6 0 z')
@@ -798,6 +799,7 @@ namespace(function () {
         cr.setAttribute("fill", "none")
         cr.setAttribute("stroke", "var(--line-undone)")
         cr.setAttribute("stroke-width", 5)
+        cr.setAttribute('noflash', 'true')
         break;
       case 'fish':
         simplePath(svg, params, 'M -10 0 A 10 10 90 1 0 -3.42 -9.4 C -8.5 -7.46 -6.8 -0.52 -2.52 -0.1 C 3.42 0.22 0.44 10.62 -6.34 4.4 C -8.12 2.76 -10.04 -2.1 -6.78 -6.12 C -7.58 -5.6 -9.8 -3.8 -10 0')

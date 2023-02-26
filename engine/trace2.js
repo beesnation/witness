@@ -547,10 +547,10 @@ window.endTrace = function() {
         // Get list of invalid elements
         if (!puzzle.disableFlash) {
           for (var invalidElement of puzzle.invalidElements) {
-            if (!puzzle.getCell(invalidElement.x, invalidElement.y).gap) {
-              data.animations.insertRule('.' + data.svg.id + '_' + invalidElement.x + '_' + invalidElement.y + ' {animation: 0.4s 20 alternate-reverse error}\n')
+            // if (!puzzle.getCell(invalidElement.x, invalidElement.y).gap) {
+              data.animations.insertRule('.' + data.svg.id + '_' + invalidElement.x + '_' + invalidElement.y + ':not([noflash]) {animation: 0.4s 20 alternate-reverse error}\n')
               data.animations.insertRule('.' + data.svg.id + '_' + invalidElement.x + '_' + invalidElement.y + '_copier {animation: 0.4s 20 alternate-reverse error}\n')
-            }
+            // }
           }
           if (puzzle.failmandering) data.animations.insertRule('#jerrymandering {animation: 0.2s 10 alternate-reverse error}\n')
         }
