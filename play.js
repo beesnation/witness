@@ -59,9 +59,9 @@ namespace(function () {
   ];
   let currentChallenge = [];
   const challengeEndpoints = [{'x': 8, 'y': 5}, {'x': 5, 'y': 8}, {'x': 5, 'y': 2}];
-  const challengeCode = 899824571;
-  const moonGateCode = -1875047686;
-  const vanillaCode = [744706933, 1678930068];
+  const challengeCode = 1629664635;
+  const moonGateCode = 1121140746;
+  const vanillaCode = [-1477696510, 969176300];
   function flower(x, y, i=0) {
     return {
       'type': 'flower',
@@ -172,7 +172,7 @@ namespace(function () {
         case "rddrurddldrr":
         case "drrdldrrurdd":
         case "drdrurddldrr":
-          window.location.href = window.NAME + '/#vs3_vA_AQ~~BAN4ANw~~8A~2EBAQECAgICAwMEBAUFBgYHBwgI~2CQkJCQ~2oKCg~2sLCws~2MDAwBAwUHCQsAAgQGCAoMAQQGCwAMAQsADAELAAwBCwACBAYICgwBAwUHCQsAAgQGCAoMAQMFBwkLAEAAQABAAEAAQABAAEAAQABAAEAAQABAAEAAQFYAAAMAQABAAEAAQABAAEAAQABAAEAAQABAAEAAQABAAEAAQABAAEAAQABAAEAAQABAAEAAQABAAEAAQABAAEAAQABAAEAAQABAAEAAQABAAEAAHgAHAQECAgMDAwEEAgMBAgQJAwkACQAJAwkACQMJAAABAAEAAAAGBgAgICD-P0BA-6Wqqf-Q39n-fYB--7a-vP~~6-iP~~6-Iv8AY2h0dHBzXDpcL1wvY2RuXC5kaXNjb3JkYXBwXC5jb21cL2F0dGFjaG1lbnRzXC81MTU2Nzg4MjE0MDg1NzEzOTJcLzk5ODMzOTkwNTM0MjE0ODY2OFwvaW1hZ2VfNjBcLnBuZw__'
+          window.location.href = window.NAME + '/#vs3_vA_AQ~~BAN4ANw~~8A~2EBAQECAgICAwMEBAUFBgYHBwgI~2CQkJCQ~2oKCg~2sLCws~2MDAwBAwUHCQsAAgQGCAoMAQQGCwAMAQsADAELAAwBCwACBAYICgwBAwUHCQsAAgQGCAoMAQMFBwkLAEAAQABAAEAAQABAAEAAQABAAEAAQABAAEAAQFYAAAMAQABAAEAAQABAAEAAQABAAEAAQABAAEAAQABAAEAAQABAAEAAQABAAEAAQABAAEAAQABAAEAAQABAAEAAQABAAEAAQABAAEAAQABAAEAAHgAHAQECAgMDAwEEAgMBAgQJAwkACQAJAwkACQMJAAABAAEAAAAGBgAgICD-P0BA-6Wqqf-Q39n-fYB--7a-vP~~6-iP~~6-Iv8AYmh0dHBzOi8vcHJvZHpwb2QuZ2l0aHViLmlvL3dpdG5lc3MvZGF0YS9kaXNjb3JkLzUxNTY3ODgyMTQwODU3MTM5Ml85OTgzMzk5MDUzNDIxNDg2NjhfaW1hZ2VfNjAucG5n'
           break;
         case "rdldrdruurdrdd":
           window.location.href = window.NAME + '/challenge.html'
@@ -180,8 +180,8 @@ namespace(function () {
       }
     }
     if (vanillaCode.includes(code) && puzzle.getCell(puzzle.endPoint.x, puzzle.endPoint.y).endType == 1) {
-      localStorage['744706933_8'] = "\u0006\u0002Z\u0015";
-      localStorage['1678930068_3'] = "\u0002\u0002U\u001a";
+      localStorage[vanillaCode[0] + '_8'] = "\u0006\u0002Z\u0015";
+      localStorage[vanillaCode[1] + '_3'] = "\u0002\u0002U\u001a";
       window.location.href = "https://store.steampowered.com/app/210970/The_Witness/";
     }
     let dir = pathsToDir(puzzle.path);
